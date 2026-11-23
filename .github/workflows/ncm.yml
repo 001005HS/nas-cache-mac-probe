@@ -21,11 +21,11 @@ jobs:
           platform :ios, '15.0'
           install! 'cocoapods', integrate_targets: false
           target 'X' do
-            pod 'Nuke', '12.8.0'
+            pod 'Nuke', '9.5.0'
             pod 'PromiseKit', '8.1.2'
           end
           EOF
-          time pod install 2>&1 | tail -3
+          time pod install 2>&1 | tail -25
       - name: spm resolve
         run: |
           mkdir -p /tmp/s/Sources/S && cd /tmp/s && echo 'public let x = 1' > Sources/S/s.swift
