@@ -1,0 +1,38 @@
+name: ncm
+# nas-cache-mac: 손님 워크플로처럼 캐시 단계 없이 공개 패키지를 받는다. 두 번 돌려 2회차가 NAS 적중인지 잰다.
+on: workflow_dispatch
+jobs:
+  mac:
+    runs-on: xenoci-macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: pod install
+        run: |
+          mkdir -p /tmp/p && cd /tmp/p && cat > Podfile <<'EOF'
+          platform :ios, '15.0'
+          install! 'cocoapods', integrate_targets: false
+          target 'X' do
+            pod 'Moya', '15.0.0'
+            pod 'Lottie', '4.4.3'
+          end
+          EOF
+          time pod install 2>&1 | tail -3
+      - name: spm resolve
+        run: |
+          mkdir -p /tmp/s/Sources/S && cd /tmp/s && echo 'public let x = 1' > Sources/S/s.swift
+          cat > Package.swift <<'EOF'
+          // swift-tools-version:5.9
+          import PackageDescription
+          let package = Package(name: "S", dependencies: [.package(url: "https://github.com/pointfreeco/swift-case-paths", exact: "1.5.6"), .package(url: "https://github.com/apple/swift-algorithms", exact: "1.2.0")], targets: [.target(name: "S", dependencies: [.product(name: "CasePaths", package: "swift-case-paths"), .product(name: "Algorithms", package: "swift-algorithms")])])
+          EOF
+          time swift package resolve 2>&1 | tail -3
+      - name: npm install
+        run: |
+          mkdir -p /tmp/n && cd /tmp/n && echo '{"name":"x","version":"1.0.0"}' > package.json
+          time npm install --no-audit --no-fund dayjs@1.11.13 uuid@10.0.0 2>&1 | tail -2
+      - name: brew
+        run: time brew fetch --force-bottle tree 2>&1 | tail -2
+      - name: gem
+        run: time gem install --user-install --no-document rainbow -v 3.1.1 2>&1 | tail -2
+      - name: release
+        run: curl -fsSL -o /tmp/f.zip https://github.com/nicklockwood/SwiftFormat/releases/download/0.54.6/swiftformat.zip && ls -la /tmp/f.zip
