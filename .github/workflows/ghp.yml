@@ -1,0 +1,46 @@
+name: ghp
+on:
+  workflow_dispatch:
+  pull_request:
+jobs:
+  cache:
+    runs-on: xenoci-macos-latest
+    steps:
+      - name: who
+        run: echo "event=${{ github.event_name }} head=${{ github.event.pull_request.head.repo.full_name || github.repository }}"
+      - name: restore seed
+        id: seed
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/ghp-seed
+          key: ghp-seed-1
+      - name: seed result
+        run: echo "seed-hit=${{ steps.seed.outputs.cache-hit }}"; cat /tmp/ghp-seed/x 2>/dev/null || true
+      - name: make
+        run: mkdir -p /tmp/ghp-seed /tmp/ghp-new && echo "seeded-by-${{ github.event_name }}" > /tmp/ghp-seed/x && date > /tmp/ghp-new/x
+      - name: save seed (push only)
+        if: github.event_name != 'pull_request'
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/ghp-seed
+          key: ghp-seed-1
+      - name: save from fork (must be refused)
+        if: github.event_name == 'pull_request'
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/ghp-new
+          key: ghp-fork-${{ github.run_id }}
+  ssh:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: xenoci-macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ssh-key: ${{ secrets.GHP_DEPLOY_KEY }}
+          submodules: true
+      - name: submodule
+        run: |
+          git submodule status
+          ls sub | head -5
+          grep -n "Match host" ~/.ssh/config || true
+          GIT_SSH_COMMAND="ssh -v" git ls-remote git@github.com:001005HS/nas-cache-mac-probe.git HEAD 2>&1 | grep -E "Connecting to|Authenticated to|ProxyCommand|HEAD" | head
