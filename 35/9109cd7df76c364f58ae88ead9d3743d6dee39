@@ -1,0 +1,20 @@
+.github/workflows/ncm.yml
+  h_e90f0321dd544b 9-17,24-25,35,41,43,45,47
+ncm-tools/artifact-client-curl.sh
+  h_e90f0321dd544b 1-74
+ncm-tools/artifact-client-gitdeps.sh
+  h_e90f0321dd544b 1-43
+ncm-tools/artifact-client-pod.sh
+  h_e90f0321dd544b 1-16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "359109cd7df76c364f58ae88ead9d3743d6dee39",
+  "prompts": {},
+  "humans": {
+    "h_e90f0321dd544b": {
+      "author": "001005HS <99410048+001005HS@users.noreply.github.com>"
+    }
+  }
+}
