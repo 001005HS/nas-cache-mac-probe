@@ -1,0 +1,14 @@
+.github/workflows/probe.yml
+  h_e90f0321dd544b 11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1a84f55c6abc755a3b0cb9c90f58d89bc30fd487",
+  "prompts": {},
+  "humans": {
+    "h_e90f0321dd544b": {
+      "author": "001005HS <99410048+001005HS@users.noreply.github.com>"
+    }
+  }
+}
