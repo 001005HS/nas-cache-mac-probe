@@ -1,0 +1,14 @@
+.github/workflows/gitdeps.yml
+  h_e90f0321dd544b 1-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d513e304009278e3fc6ab0dc0265268b32c7d3c7",
+  "prompts": {},
+  "humans": {
+    "h_e90f0321dd544b": {
+      "author": "001005HS <99410048+001005HS@users.noreply.github.com>"
+    }
+  }
+}
