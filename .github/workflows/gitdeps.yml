@@ -1,0 +1,42 @@
+name: gitdeps
+on: workflow_dispatch
+jobs:
+  mac:
+    runs-on: xenoci-macos-latest
+    steps:
+      - name: mirror
+        run: |
+          git ls-remote http://artifacts.ci.xeno/git/github.com/apple/swift-argument-parser 2>&1 | head -2
+          git ls-remote http://artifacts.ci.xeno/git/github.com/xenoci-qa-test/dots2-app 2>&1 | tail -2 || true
+      - name: swiftpm
+        env:
+          GIT_CONFIG_COUNT: "2"
+          GIT_CONFIG_KEY_0: url.http://artifacts.ci.xeno/git/github.com/.insteadOf
+          GIT_CONFIG_VALUE_0: https://github.com/
+          GIT_CONFIG_KEY_1: http.http://artifacts.ci.xeno/.extraHeader
+          GIT_CONFIG_VALUE_1: ""
+        run: |
+          mkdir -p /tmp/s/Sources/S && cd /tmp/s && echo 'public let x = 1' > Sources/S/s.swift
+          cat > Package.swift <<'EOF'
+          // swift-tools-version:5.9
+          import PackageDescription
+          let package = Package(name: "S", dependencies: [.package(url: "https://github.com/apple/swift-argument-parser", exact: "1.3.0"), .package(url: "https://github.com/Alamofire/Alamofire", exact: "5.9.1")], targets: [.target(name: "S", dependencies: [.product(name: "ArgumentParser", package: "swift-argument-parser"), "Alamofire"])])
+          EOF
+          time swift package resolve 2>&1 | tail -4
+      - name: pod
+        env:
+          GIT_CONFIG_COUNT: "2"
+          GIT_CONFIG_KEY_0: url.http://artifacts.ci.xeno/git/github.com/.insteadOf
+          GIT_CONFIG_VALUE_0: https://github.com/
+          GIT_CONFIG_KEY_1: http.http://artifacts.ci.xeno/.extraHeader
+          GIT_CONFIG_VALUE_1: ""
+        run: |
+          mkdir -p /tmp/p && cd /tmp/p && cat > Podfile <<'EOF'
+          platform :ios, '15.0'
+          install! 'cocoapods', integrate_targets: false
+          target 'X' do
+            pod 'Alamofire', '5.9.1'
+            pod 'SnapKit', '5.7.1'
+          end
+          EOF
+          rm -rf ~/Library/Caches/CocoaPods/Pods 2>/dev/null; time pod install --verbose 2>&1 | grep -E "git|http|Downloading|Installing" | grep -v -i -E "token|auth" | head -20
