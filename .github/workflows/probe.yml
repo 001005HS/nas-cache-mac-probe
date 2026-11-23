@@ -1,0 +1,17 @@
+name: probe
+on: workflow_dispatch
+jobs:
+  mac:
+    runs-on: xenoci-macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: env
+        run: |
+          echo "PATH=$PATH"
+          env | grep -E '^(XENO|GIT_CONFIG|HTTPS?_PROXY|npm_|HOMEBREW)' | sed -E 's/(TOKEN|SECRET)=.*/\1=x/' | sort
+          for t in npm pod brew gem bundle curl git swift; do echo "$t -> $(command -v $t)"; done
+          ls -la ~/.xeno-ci ~/.xeno-ci/tools/bin 2>&1 | head -30
+          cat ~/.xeno-ci/artifact-env.sh 2>&1 | head
+          cat ~/actions-runner/.path 2>&1; echo; cat ~/actions-runner/.env 2>&1 | grep -v -i token
+          git config -l --show-origin | grep -v -i -E 'token|authorization'
+          curl -s -m 3 --proxy "$HTTP_PROXY" http://artifacts.ci.xeno/_xeno/health; echo
