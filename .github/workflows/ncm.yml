@@ -6,14 +6,16 @@ jobs:
     runs-on: xenoci-macos-latest
     steps:
       - uses: actions/checkout@v4
+      - name: tools
+        run: for t in pod swift xcodebuild curl npm; do echo "$t -> $(command -v $t)"; done
       - name: pod install
         run: |
           mkdir -p /tmp/p && cd /tmp/p && cat > Podfile <<'EOF'
           platform :ios, '15.0'
           install! 'cocoapods', integrate_targets: false
           target 'X' do
-            pod 'Moya', '15.0.0'
-            pod 'Lottie', '4.4.3'
+            pod 'SDWebImage', '5.19.7'
+            pod 'lottie-ios', '4.4.3'
           end
           EOF
           time pod install 2>&1 | tail -3
