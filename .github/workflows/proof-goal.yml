@@ -1,0 +1,28 @@
+name: proof-goal
+# nas-proof-mac (net10 2번 증명): 같은 iOS 의존성 묶음을 매번 깨끗한 VM 에서 받는다. 손님 워크플로처럼 캐시 단계 없음.
+on: workflow_dispatch
+jobs:
+  mac:
+    runs-on: xenoci-macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: dev wrappers
+        # 목표 미리보기: dev 의 새 래퍼(c6649ac1e, 9f4b4a4dd)를 운영 배포 뒤 모습대로 얹음(ncm.yml 과 같은 방법). 그 밖은 proof.yml 과 같음.
+        run: |
+          . ~/.xeno-ci/artifact-env.sh
+          cp ncm-tools/*.sh "$XENO_ARTIFACT_TOOL_ROOT/" && chmod 755 "$XENO_ARTIFACT_TOOL_ROOT"/artifact-client-{gitdeps,pod,curl}.sh
+          ln -sfn "$XENO_ARTIFACT_TOOL_ROOT/artifact-client-gitdeps.sh" "$XENO_ARTIFACT_TOOL_ROOT/bin/swift"
+          ln -sfn "$XENO_ARTIFACT_TOOL_ROOT/artifact-client-gitdeps.sh" "$XENO_ARTIFACT_TOOL_ROOT/bin/xcodebuild"
+      - name: pod install
+        run: cd proof/ios && time pod install 2>&1 | tail -4
+      - name: spm resolve
+        run: cd proof/spm && time swift package resolve 2>&1 | tail -4
+      - name: npm ci
+        run: cd proof/npm && time npm ci --no-audit --no-fund 2>&1 | tail -2
+      - name: brew install
+        # 이미지에 없는 공개 formula(xcbeautify 는 이미지에 있어 아무것도 안 받음)
+        run: time brew install cloc 2>&1 | tail -3
+      - name: bundle install
+        run: |
+          cd proof/gem && bundle config set --local path vendor/bundle
+          set -o pipefail; time bundle install 2>&1 | tail -3
