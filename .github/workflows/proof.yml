@@ -1,0 +1,18 @@
+name: proof
+# nas-proof-mac (net10 2번 증명): 같은 iOS 의존성 묶음을 매번 깨끗한 VM 에서 받는다. 손님 워크플로처럼 캐시 단계 없음.
+on: workflow_dispatch
+jobs:
+  mac:
+    runs-on: xenoci-macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: pod install
+        run: cd proof/ios && time pod install 2>&1 | tail -4
+      - name: spm resolve
+        run: cd proof/spm && time swift package resolve 2>&1 | tail -4
+      - name: npm ci
+        run: cd proof/npm && time npm ci --no-audit --no-fund 2>&1 | tail -2
+      - name: brew install
+        run: time brew install xcbeautify 2>&1 | tail -3
+      - name: bundle install
+        run: cd proof/gem && time bundle install --path vendor/bundle 2>&1 | tail -3
