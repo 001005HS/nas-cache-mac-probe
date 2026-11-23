@@ -13,6 +13,9 @@ jobs:
       - name: npm ci
         run: cd proof/npm && time npm ci --no-audit --no-fund 2>&1 | tail -2
       - name: brew install
-        run: time brew install xcbeautify 2>&1 | tail -3
+        # 이미지에 없는 공개 formula(xcbeautify 는 이미지에 있어 아무것도 안 받음)
+        run: time brew install cloc 2>&1 | tail -3
       - name: bundle install
-        run: cd proof/gem && time bundle install --path vendor/bundle 2>&1 | tail -3
+        run: |
+          cd proof/gem && bundle config set --local path vendor/bundle
+          set -o pipefail; time bundle install 2>&1 | tail -3
