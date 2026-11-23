@@ -1,0 +1,14 @@
+.github/workflows/ncm.yml
+  h_e90f0321dd544b 9-10,17-18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b9d24f17caf65376b24aff71468afcd01f2d3641",
+  "prompts": {},
+  "humans": {
+    "h_e90f0321dd544b": {
+      "author": "001005HS <99410048+001005HS@users.noreply.github.com>"
+    }
+  }
+}
