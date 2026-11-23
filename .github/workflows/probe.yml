@@ -8,7 +8,7 @@ jobs:
       - name: env
         run: |
           echo "PATH=$PATH"
-          env | grep -E '^(XENO|GIT_CONFIG|HTTPS?_PROXY|npm_|HOMEBREW)' | sed -E 's/(TOKEN|SECRET)=.*/\1=x/' | sort
+          env | grep -E '^(XENO|GIT_CONFIG|HTTPS?_PROXY|npm_|HOMEBREW)' | grep -v -i -E 'JIT|TOKEN|SECRET|KEY|PASS|AUTH' | sed -E 's#//[^@/]*@#//***@#' | sort
           for t in npm pod brew gem bundle curl git swift; do echo "$t -> $(command -v $t)"; done
           ls -la ~/.xeno-ci ~/.xeno-ci/tools/bin 2>&1 | head -30
           cat ~/.xeno-ci/artifact-env.sh 2>&1 | head
