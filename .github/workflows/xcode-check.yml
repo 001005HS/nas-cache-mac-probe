@@ -1,0 +1,25 @@
+name: xcode-check
+on:
+  workflow_dispatch:
+    inputs:
+      tag: { required: false, default: x }
+jobs:
+  mac:
+    name: xcode-check ${{ inputs.tag }}
+    runs-on: xenoci-macos-latest
+    steps:
+      - name: xcode
+        run: |
+          set -e
+          sw_vers
+          xcode-select -p
+          xcodebuild -version
+          ls -d /Applications/Xcode*.app
+          for a in /Applications/Xcode*.app; do echo "$a: $(DEVELOPER_DIR=$a/Contents/Developer xcodebuild -version | tr '\n' ' ')"; done
+          xcrun simctl list runtimes | grep -i ios
+          df -h / | tail -1
+          sysctl -n hw.ncpu hw.memsize
+          scutil --get ComputerName || true
+      - name: build 27.2
+        run: |
+          mkdir -p /tmp/h && cd /tmp/h && printf 'print("hello")\n' > main.swift && xcrun swiftc main.swift -o hello && ./hello
