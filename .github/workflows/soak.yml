@@ -1,0 +1,30 @@
+name: soak
+on:
+  workflow_dispatch:
+    inputs:
+      minutes:
+        description: "잡 길이(분)"
+        default: "2"
+jobs:
+  mac:
+    runs-on: xenoci-macos
+    timeout-minutes: 70
+    steps:
+      - name: info
+        run: |
+          echo "SOAK repo=$GITHUB_REPOSITORY run=$GITHUB_RUN_ID host=$(hostname)"
+          sw_vers; xcodebuild -version | head -1 || true
+          ls -d /Applications/Xcode*.app 2>/dev/null || true
+          df -h / | tail -1
+          ls -ld "$HOME/.xenoci-disk" 2>/dev/null && echo "SOAK sticky=yes" || echo "SOAK sticky=no"
+      - name: work
+        run: |
+          end=$(( $(date +%s) + ${{ inputs.minutes }} * 60 ))
+          i=0
+          while [ "$(date +%s)" -lt "$end" ]; do
+            i=$((i+1))
+            head -c 4194304 /dev/urandom | shasum -a 256 >/dev/null
+            if [ $((i % 20)) -eq 0 ]; then echo "SOAK tick $i $(date -u +%T)"; fi
+            sleep 3
+          done
+          echo "SOAK done after ${{ inputs.minutes }}m"
